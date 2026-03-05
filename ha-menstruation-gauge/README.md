@@ -22,11 +22,11 @@ menstruation_gauge:
 6. Restart Home Assistant again
 
 ## Monorepo layout
-This project can live in one repository (`nremey/HA_mentrual_gauge`) with both folders:
-- `ha-menstruation-gauge/`
-- `lovelace-menstruation-gauge-card/`
+This project lives in one repository (`nremey/HA_menstrual_gauge`) with both components:
+- Integration files: `custom_components/menstruation_gauge/` (at repository root)
+- Card files: `lovelace-menstruation-gauge-card/`
 
-For this integration, use the files from `ha-menstruation-gauge/custom_components/menstruation_gauge`.
+The integration is structured at the repository root for HACS compatibility.
 
 ## Sensor
 - Entity: `sensor.menstruation_gauge`

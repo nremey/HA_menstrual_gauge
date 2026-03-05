@@ -33,10 +33,41 @@ Repository target: `https://github.com/nremey/HA_menstrual_gauge`
 - Click-to-edit mini calendar (add/remove cycle start days).
 - Uses the integration sensor and services.
 
-## Quick setup (without HACS)
+## Installation via HACS (Recommended)
+
+This repository contains both the integration and the Lovelace card. Install both components from the same repository using different HACS categories.
+
+### Install Integration
+
+1. Open HACS in Home Assistant
+2. Go to `...` (three dots menu) → `Custom repositories`
+3. Add repository:
+   - Repository: `https://github.com/nremey/HA_menstrual_gauge`
+   - Category: **Integration**
+4. Click `Install` on "Menstruation Gauge"
+5. Restart Home Assistant
+6. Add to `configuration.yaml`:
+
+```yaml
+menstruation_gauge:
+```
+
+7. Restart Home Assistant again
+
+### Install Lovelace Card
+
+1. Open HACS in Home Assistant
+2. Go to `...` (three dots menu) → `Custom repositories`
+3. Add repository:
+   - Repository: `https://github.com/nremey/HA_menstrual_gauge`
+   - Category: **Dashboard**
+4. Click `Install` on "Menstruation Gauge Card"
+5. Reload browser/frontend (hard refresh recommended)
+
+## Manual Installation (without HACS)
 
 1. Copy integration folder:
-- From: `ha-menstruation-gauge/custom_components/menstruation_gauge`
+- From: `custom_components/menstruation_gauge`
 - To: `/config/custom_components/menstruation_gauge`
 
 2. Copy card file:

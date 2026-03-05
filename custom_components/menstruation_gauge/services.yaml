@@ -1,0 +1,52 @@
+add_cycle_start:
+  name: Add cycle start
+  description: Add one cycle start day.
+  fields:
+    date:
+      name: Date
+      description: Date in YYYY-MM-DD format.
+      example: "2026-03-04"
+      required: true
+      selector:
+        date: {}
+
+remove_cycle_start:
+  name: Remove cycle start
+  description: Remove one cycle start day.
+  fields:
+    date:
+      name: Date
+      description: Date in YYYY-MM-DD format.
+      example: "2026-03-04"
+      required: true
+      selector:
+        date: {}
+
+set_history:
+  name: Set full history
+  description: Replace the whole cycle-start history list.
+  fields:
+    dates:
+      name: Dates
+      description: List of YYYY-MM-DD dates.
+      required: true
+      example:
+        - "2026-01-02"
+        - "2026-01-30"
+        - "2026-02-27"
+
+set_period_duration:
+  name: Set period duration
+  description: Set expected period duration in days.
+  fields:
+    days:
+      name: Days
+      description: Expected period duration, 1-14.
+      required: true
+      example: 5
+      selector:
+        number:
+          min: 1
+          max: 14
+          step: 1
+          mode: box
