@@ -1,5 +1,13 @@
 {
   "title": "Menstruation Gauge",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Menstruation Gauge",
+        "description": "Track menstrual cycles and get forecast predictions. No configuration needed - just click submit to enable."
+      }
+    }
+  },
   "services": {
     "add_cycle_start": {
       "name": "Add cycle start",

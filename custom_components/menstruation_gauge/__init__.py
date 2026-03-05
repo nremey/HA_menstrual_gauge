@@ -12,6 +12,7 @@ from typing import Any
 
 import voluptuous as vol
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.storage import Store
 
@@ -163,22 +164,8 @@ async def _save_store(hass: HomeAssistant) -> None:
     await data["store"].async_save(payload)
 
 
-async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
-    """Set up integration from configuration.yaml with `menstruation_gauge:`."""
-    if DOMAIN not in config:
-        return True
-
-    store: Store = Store(hass, STORE_VERSION, STORE_KEY)
-    stored = await store.async_load() or {}
-    history = _dedupe_sort(list(stored.get("history") or []))
-    duration = int(stored.get("period_duration_days") or DEFAULT_PERIOD_DURATION_DAYS)
-
-    hass.data[DATA_KEY] = {
-        "store": store,
-        "history": history,
-        "period_duration_days": max(1, min(14, duration)),
-    }
-
+async def _setup_integration(hass: HomeAssistant) -> None:
+    """Set up the integration services and state."""
     async def _handle_add_cycle_start(call: ServiceCall) -> None:
         iso = _norm_iso(call.data["date"])
         if not iso:
@@ -231,10 +218,59 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     )
 
     await _push_state(hass)
+
+
+async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
+    """Set up integration from configuration.yaml with `menstruation_gauge:`."""
+    if DOMAIN not in config:
+        return True
+
+    store: Store = Store(hass, STORE_VERSION, STORE_KEY)
+    stored = await store.async_load() or {}
+    history = _dedupe_sort(list(stored.get("history") or []))
+    duration = int(stored.get("period_duration_days") or DEFAULT_PERIOD_DURATION_DAYS)
+
+    hass.data[DATA_KEY] = {
+        "store": store,
+        "history": history,
+        "period_duration_days": max(1, min(14, duration)),
+    }
+
+    await _setup_integration(hass)
     _LOGGER.info("Menstruation Gauge initialized with %s history points", len(history))
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry) -> bool:
-    """Required for linting compatibility; no config entries are used yet."""
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up Menstruation Gauge from a config entry."""
+    store: Store = Store(hass, STORE_VERSION, STORE_KEY)
+    stored = await store.async_load() or {}
+    history = _dedupe_sort(list(stored.get("history") or []))
+    duration = int(stored.get("period_duration_days") or DEFAULT_PERIOD_DURATION_DAYS)
+
+    hass.data[DATA_KEY] = {
+        "store": store,
+        "history": history,
+        "period_duration_days": max(1, min(14, duration)),
+    }
+
+    await _setup_integration(hass)
+    _LOGGER.info("Menstruation Gauge initialized with %s history points", len(history))
+    return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
+    # Unregister services
+    hass.services.async_remove(DOMAIN, SERVICE_ADD_CYCLE_START)
+    hass.services.async_remove(DOMAIN, SERVICE_REMOVE_CYCLE_START)
+    hass.services.async_remove(DOMAIN, SERVICE_SET_HISTORY)
+    hass.services.async_remove(DOMAIN, SERVICE_SET_PERIOD_DURATION)
+    
+    # Remove state
+    hass.states.async_remove(DEFAULT_ENTITY_ID)
+    
+    # Remove data
+    hass.data.pop(DATA_KEY, None)
+    
     return True

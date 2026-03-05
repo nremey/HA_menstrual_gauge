@@ -10,7 +10,7 @@ Home Assistant custom integration for cycle tracking and forecast attributes.
 
 ## Install (HACS custom repository)
 1. HACS -> `...` -> Custom repositories
-2. Add `https://github.com/nremey/HA_mentrual_gauge` as category `Integration`
+2. Add `https://github.com/nremey/HA_menstrual_gauge` as category `Integration`
 3. Install **Menstruation Gauge**
 4. Restart Home Assistant
 5. Add to `configuration.yaml`:
