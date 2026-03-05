@@ -15,7 +15,7 @@ Lovelace custom card for menstruation cycle visualization and interaction.
 
 ## Install (HACS custom repository)
 1. HACS -> `...` -> Custom repositories
-2. Add `https://github.com/nremey/HA_mentrual_gauge` as category `Dashboard` (only if you publish the card as standalone plugin entry)
+2. Add `https://github.com/nremey/HA_menstrual_gauge` as category `Dashboard` (only if you publish the card as standalone plugin entry)
 3. Install **Menstruation Gauge Card**
 4. Reload browser (or HA frontend)
 
