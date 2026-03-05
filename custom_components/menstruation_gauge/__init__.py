@@ -8,16 +8,15 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 import logging
-import os
-import shutil
 from pathlib import Path
 from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.storage import Store
+
+from . import utils
 
 from .const import (
     ATTR_AVG_CYCLE_DAYS,
@@ -167,39 +166,22 @@ async def _save_store(hass: HomeAssistant) -> None:
     await data["store"].async_save(payload)
 
 
-async def _copy_card_file(hass: HomeAssistant) -> None:
-    """Copy the Lovelace card file to the www directory."""
-    try:
-        # Get the integration directory
-        integration_dir = Path(__file__).parent
-        card_source = integration_dir / "frontend" / "menstruation-gauge-card.js"
-        
-        if not card_source.exists():
-            _LOGGER.warning("Card file not found at %s", card_source)
-            return
-        
-        # Get Home Assistant config directory
-        config_dir = Path(hass.config.config_dir)
-        www_dir = config_dir / "www" / "community" / DOMAIN
-        www_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Destination file
-        card_dest = www_dir / "menstruation-gauge-card.js"
-        
-        # Copy file (use sync copy since we're in async context but file ops are fast)
-        # We'll use run_in_executor to avoid blocking
-        def _copy():
-            shutil.copy2(card_source, card_dest)
-            _LOGGER.info("Card file copied to %s", card_dest)
-        
-        await hass.async_add_executor_job(_copy)
-        
-    except Exception as e:
-        _LOGGER.warning("Failed to copy card file: %s", e)
+async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
+    """Set up integration from configuration.yaml with `menstruation_gauge:`."""
+    if DOMAIN not in config:
+        return True
 
+    store: Store = Store(hass, STORE_VERSION, STORE_KEY)
+    stored = await store.async_load() or {}
+    history = _dedupe_sort(list(stored.get("history") or []))
+    duration = int(stored.get("period_duration_days") or DEFAULT_PERIOD_DURATION_DAYS)
 
-async def _setup_integration(hass: HomeAssistant) -> None:
-    """Set up the integration services and state."""
+    hass.data[DATA_KEY] = {
+        "store": store,
+        "history": history,
+        "period_duration_days": max(1, min(14, duration)),
+    }
+
     async def _handle_add_cycle_start(call: ServiceCall) -> None:
         iso = _norm_iso(call.data["date"])
         if not iso:
@@ -252,61 +234,29 @@ async def _setup_integration(hass: HomeAssistant) -> None:
     )
 
     await _push_state(hass)
-
-
-async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
-    """Set up integration from configuration.yaml with `menstruation_gauge:`."""
-    if DOMAIN not in config:
-        return True
-
-    store: Store = Store(hass, STORE_VERSION, STORE_KEY)
-    stored = await store.async_load() or {}
-    history = _dedupe_sort(list(stored.get("history") or []))
-    duration = int(stored.get("period_duration_days") or DEFAULT_PERIOD_DURATION_DAYS)
-
-    hass.data[DATA_KEY] = {
-        "store": store,
-        "history": history,
-        "period_duration_days": max(1, min(14, duration)),
-    }
-
-    await _copy_card_file(hass)
-    await _setup_integration(hass)
     _LOGGER.info("Menstruation Gauge initialized with %s history points", len(history))
+
+    # Serve lovelace card
+    path = Path(__file__).parent / "www"
+
+    try:
+        utils.register_static_path(
+            hass.http.app,
+            "/menstruationgauge/www/menstruation-gauge-card.js",
+            path / "menstruation-gauge-card.js",
+        )
+
+        # Add card to resources
+        version = getattr(hass.data["integrations"][DOMAIN], "version", "0.1.0")
+        await utils.init_resource(
+            hass, "/menstruationgauge/www/menstruation-gauge-card.js", str(version)
+        )
+    except Exception:
+        pass
+
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Menstruation Gauge from a config entry."""
-    store: Store = Store(hass, STORE_VERSION, STORE_KEY)
-    stored = await store.async_load() or {}
-    history = _dedupe_sort(list(stored.get("history") or []))
-    duration = int(stored.get("period_duration_days") or DEFAULT_PERIOD_DURATION_DAYS)
-
-    hass.data[DATA_KEY] = {
-        "store": store,
-        "history": history,
-        "period_duration_days": max(1, min(14, duration)),
-    }
-
-    await _copy_card_file(hass)
-    await _setup_integration(hass)
-    _LOGGER.info("Menstruation Gauge initialized with %s history points", len(history))
-    return True
-
-
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
-    # Unregister services
-    hass.services.async_remove(DOMAIN, SERVICE_ADD_CYCLE_START)
-    hass.services.async_remove(DOMAIN, SERVICE_REMOVE_CYCLE_START)
-    hass.services.async_remove(DOMAIN, SERVICE_SET_HISTORY)
-    hass.services.async_remove(DOMAIN, SERVICE_SET_PERIOD_DURATION)
-    
-    # Remove state
-    hass.states.async_remove(DEFAULT_ENTITY_ID)
-    
-    # Remove data
-    hass.data.pop(DATA_KEY, None)
-    
+async def async_unload_entry(hass: HomeAssistant, entry) -> bool:
+    """Required for linting compatibility; no config entries are used yet."""
     return True
