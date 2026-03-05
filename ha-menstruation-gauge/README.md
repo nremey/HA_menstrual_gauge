@@ -6,20 +6,25 @@ Home Assistant custom integration for cycle tracking and forecast attributes.
 - Persistent storage of cycle start dates
 - Forecast attributes on `sensor.menstruation_gauge`
 - Services to add/remove/update history
-- Designed to work with a separate Lovelace card
+- Automatically installs the Lovelace card during setup
 
 ## Install (HACS custom repository)
+
+The integration automatically installs the Lovelace card - no separate installation needed!
+
 1. HACS -> `...` -> Custom repositories
 2. Add `https://github.com/nremey/HA_menstrual_gauge` as category `Integration`
 3. Install **Menstruation Gauge**
 4. Restart Home Assistant
-5. Add to `configuration.yaml`:
+5. Add the integration via UI (Settings > Devices & Services > Add Integration) or add to `configuration.yaml`:
 
 ```yaml
 menstruation_gauge:
 ```
 
-6. Restart Home Assistant again
+6. Restart Home Assistant again (if using YAML)
+
+**Note:** The card file is automatically copied to `/config/www/community/menstruation_gauge/menstruation-gauge-card.js`. You just need to add it as a Lovelace resource in your dashboard settings.
 
 ## Monorepo layout
 This project lives in one repository (`nremey/HA_menstrual_gauge`) with both components:

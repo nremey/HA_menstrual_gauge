@@ -8,6 +8,9 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 import logging
+import os
+import shutil
+from pathlib import Path
 from typing import Any
 
 import voluptuous as vol
@@ -164,6 +167,37 @@ async def _save_store(hass: HomeAssistant) -> None:
     await data["store"].async_save(payload)
 
 
+async def _copy_card_file(hass: HomeAssistant) -> None:
+    """Copy the Lovelace card file to the www directory."""
+    try:
+        # Get the integration directory
+        integration_dir = Path(__file__).parent
+        card_source = integration_dir / "frontend" / "menstruation-gauge-card.js"
+        
+        if not card_source.exists():
+            _LOGGER.warning("Card file not found at %s", card_source)
+            return
+        
+        # Get Home Assistant config directory
+        config_dir = Path(hass.config.config_dir)
+        www_dir = config_dir / "www" / "community" / DOMAIN
+        www_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Destination file
+        card_dest = www_dir / "menstruation-gauge-card.js"
+        
+        # Copy file (use sync copy since we're in async context but file ops are fast)
+        # We'll use run_in_executor to avoid blocking
+        def _copy():
+            shutil.copy2(card_source, card_dest)
+            _LOGGER.info("Card file copied to %s", card_dest)
+        
+        await hass.async_add_executor_job(_copy)
+        
+    except Exception as e:
+        _LOGGER.warning("Failed to copy card file: %s", e)
+
+
 async def _setup_integration(hass: HomeAssistant) -> None:
     """Set up the integration services and state."""
     async def _handle_add_cycle_start(call: ServiceCall) -> None:
@@ -236,6 +270,7 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
         "period_duration_days": max(1, min(14, duration)),
     }
 
+    await _copy_card_file(hass)
     await _setup_integration(hass)
     _LOGGER.info("Menstruation Gauge initialized with %s history points", len(history))
     return True
@@ -254,6 +289,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "period_duration_days": max(1, min(14, duration)),
     }
 
+    await _copy_card_file(hass)
     await _setup_integration(hass)
     _LOGGER.info("Menstruation Gauge initialized with %s history points", len(history))
     return True
