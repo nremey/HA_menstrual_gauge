@@ -1,7 +1,7 @@
 # HA_menstrual_gauge
 
 
-## Information!  sincs 2026 March, 6th: Install through HACS is bugged and doesn't work yet!
+## Information!  since 2026 March, 6th: Install through HACS is bugged and doesn't work yet!
 
 <img width="30%" height="30%" alt="normal card view" src="https://github.com/user-attachments/assets/6fb8fb40-e42b-4243-bd52-3cb5f3d7bf8d" /> <img width="30%" height="30%" alt="click a day to set/delete a cycle start date" src="https://github.com/user-attachments/assets/cadb8113-fabb-4eb6-9611-a1901db311d4" />
 
