@@ -33,37 +33,44 @@ Repository target: `https://github.com/nremey/HA_menstrual_gauge`
 - Click-to-edit mini calendar (add/remove cycle start days).
 - Uses the integration sensor and services.
 
-## Quick setup (without HACS)
+## Installation via HACS (Recommended)
 
-1. Copy integration folder:
-- From: `ha-menstruation-gauge/custom_components/menstruation_gauge`
-- To: `/config/custom_components/menstruation_gauge`
+The integration automatically installs and registers the Lovelace card when you install the integration - no separate installation or manual resource configuration needed!
 
-2. Copy card file:
-- From: `lovelace-menstruation-gauge-card/dist/menstruation-gauge-card.js`
-- To: `/config/www/community/remeys_menstrual_gauge/menstruation-gauge-card.js`
+### Install Integration (Card Included)
 
-3. Add to `configuration.yaml`:
+1. Open HACS in Home Assistant
+2. Go to `...` (three dots menu) → `Custom repositories`
+3. Add repository:
+   - Repository: `https://github.com/nremey/HA_menstrual_gauge`
+   - Category: **Integration**
+4. Click `Install` on "Menstruation Gauge"
+5. Restart Home Assistant
+6. The integration can be added via UI (Settings > Devices & Services > Add Integration) or add to `configuration.yaml`:
 
 ```yaml
 menstruation_gauge:
 ```
 
-4. Restart Home Assistant.
+7. Restart Home Assistant again (if using YAML)
 
-5. Add Lovelace resource:
+**Note:** The Lovelace card is automatically registered and available immediately after setup. No manual resource configuration is required! After restarting, reload your browser/view (hard refresh recommended: `Ctrl+F5` or `Cmd+Shift+R`) to ensure the card is loaded.
 
-## How to add Lovelace resource (UI steps)
+## Manual Installation (without HACS)
 
-1. Open Home Assistant.
-2. Go to `Settings` -> `Dashboards`.
-3. Open your target dashboard.
-4. Click `⋮` (top right) -> `Resources`.
-5. Click `+ Add Resource`.
-6. Enter:
-   - URL: `/local/community/remeys_menstrual_gauge/menstruation-gauge-card.js`
-   - Type: `JavaScript Module`
-7. Save and reload browser (hard refresh recommended).
+1. Copy integration folder:
+- From: `custom_components/menstruation_gauge`
+- To: `/config/custom_components/menstruation_gauge`
+
+2. Add to `configuration.yaml`:
+
+```yaml
+menstruation_gauge:
+```
+
+3. Restart Home Assistant.
+
+**Note:** The card is automatically registered and available immediately after the integration loads. The card file is served from `custom_components/menstruation_gauge/www/menstruation-gauge-card.js` and is automatically added as a Lovelace resource - no manual configuration needed! After restarting, reload your browser/view (hard refresh recommended: `Ctrl+F5` or `Cmd+Shift+R`) to ensure the card is loaded.
 
 
 

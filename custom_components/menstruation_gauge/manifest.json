@@ -1,0 +1,12 @@
+{
+  "domain": "menstruation_gauge",
+  "name": "Menstruation Gauge",
+  "codeowners": ["@nremey"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/nremey/HA_menstrual_gauge",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/nremey/HA_menstrual_gauge/issues",
+  "version": "0.2.0"
+}
