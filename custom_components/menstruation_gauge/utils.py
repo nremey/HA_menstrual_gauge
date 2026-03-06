@@ -25,6 +25,6 @@ async def init_resource(hass: HomeAssistant, url_path: str, version: str) -> Non
     # Note: Automatic resource registration may not be available in all HA versions.
     # The static file is served and can be added manually via:
     # Settings > Dashboards > Resources > + Add Resource
-    # URL: /local/menstruationgauge/www/menstruation-gauge-card.js
+    # URL: /local/menstruation_gauge/www/menstruation-gauge-card.js
     # Type: JavaScript Module
     pass
