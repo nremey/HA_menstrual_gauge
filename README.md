@@ -1,5 +1,10 @@
 # HA_menstrual_gauge
 
+new and improved version under:
+## github.com/nremey/HA-menstrual-gauge-v2;
+description is updated. the steps are explained, please check out and give feedback.
+
+
 
 ## Information!  since 2026 March, 6th: Install through HACS is bugged and doesn't work yet!
 
